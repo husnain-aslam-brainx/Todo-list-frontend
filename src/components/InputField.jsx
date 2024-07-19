@@ -8,6 +8,7 @@ export default function InputField({ addTodo }) {
     e.preventDefault();
     addTodo(task);
     setTask("");
+    console.log("ITs me in the loooooog");
   };
 
   return (

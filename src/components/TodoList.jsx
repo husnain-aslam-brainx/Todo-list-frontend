@@ -1,19 +1,43 @@
+import axios from "axios";
 import InputField from "./InputField";
 import Button from "./Button";
 import ListItem from "./ListItem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function TodoList() {
   const [todos, setTodos] = useState([]);
-  const [itemId, setItemId] = useState(0);
+
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:3000/todos")
+      .then((response) => setTodos(response.data))
+      .catch((error) => {
+        console.log("There is an error while fetching it", error);
+      });
+  }, []);
 
   const addTodo = (task) => {
-    setTodos([...todos, { id: itemId, text: task }]);
-    setItemId(itemId + 1);
+    axios
+      .post("http://127.0.0.1:3000/todos", { task, completed: false })
+      .then((response) => {
+        console.log(response.data);
+        setTodos([...todos, response.data]);
+        console.log("added");
+      })
+      .catch((error) => {
+        console.log("There is an error while creating new entry", error);
+      });
   };
 
   const deleteTodo = (id) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    axios
+      .delete(`http://127.0.0.1:3000/todos/${id}`)
+      .then(() => {
+        setTodos(todos.filter((todo) => todo.id !== id));
+      })
+      .catch((error) => {
+        console.log("There is an error while deleting the entry", error);
+      });
   };
 
   return (
@@ -29,7 +53,7 @@ export default function TodoList() {
           {todos.map((todo) => (
             <li key={todo.id}>
               <div className="grid grid-flow-col items-center gap-8">
-                <ListItem text={todo.text} />
+                <ListItem text={todo.task} />
                 <Button onClick={() => deleteTodo(todo.id)}>Delete</Button>
               </div>
             </li>
